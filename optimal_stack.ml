@@ -87,4 +87,12 @@ let optimize sa sb =
       end
     end
   in optimize_aux ()
+
+
+(** Example *)
+
+let example = function () ->
+let a = Var "a" and b = Var "b" and c = Var "c" in
+let start = Stack ([Pair (a, b); c], []) and target = Stack ([Pair (c,a); b], []) in
+optimize start target
   
