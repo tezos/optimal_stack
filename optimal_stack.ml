@@ -74,7 +74,7 @@ let optimize sa sb =
       if Heap.size nodes <= 0 then
         None
       else begin
-        let (s, (cost, total, code)) = Heap.pop nodes in
+        let (s, (total, cost, code)) = Heap.pop nodes in
         if s = sb then
           Some (cost, List.rev code)
         else begin
