@@ -65,29 +65,34 @@ let heuristic sa sb =
   end
 
 let optimize sa sb =
-  let nodes = Heap.one sa (0 + heuristic sa sb, 0, []) in
-  let rec optimize_aux () =
-    if Heap.size nodes <= 0 then
-      None
-    else begin
-      let (s, (total, cost, code)) = Heap.pop nodes in
-      if s = sb then
-        Some (cost, List.rev code)
+  let varB = present_variables sb and varA =  present_variables sa in
+  if not IntSet.(diff varB varA |> is_empty) then
+    None
+  else begin
+    let nodes = Heap.one sa (0 + heuristic sa sb, 0, []) in
+    let rec optimize_aux () =
+      if Heap.size nodes <= 0 then
+        None
       else begin
-        List.iter
-          (fun opcode -> let sa = (run ([opcode], s)) and
-            newcost = opcost opcode + cost in
-            let v = (newcost + heuristic sa sb, newcost, opcode::code) in
-            if Heap.mem nodes sa then
-              Heap.decrease nodes sa v
-            else
-              Heap.insert nodes sa v
-          )
-          [DUP; DROP; SWAP; CDR; CAR; PUSH; POP; PAIR; UNPAIR; UNPIAR];
-        optimize_aux ()
+        let (s, (cost, total, code)) = Heap.pop nodes in
+        if s = sb then
+          Some (cost, List.rev code)
+        else begin
+          List.iter
+            (fun opcode -> let sa = (run ([opcode], s)) and
+              newcost = opcost opcode + cost in
+              let v = (newcost + heuristic sa sb, newcost, opcode::code) in
+              if Heap.mem nodes sa then
+                Heap.decrease nodes sa v
+              else
+                Heap.insert nodes sa v
+            )
+            [DUP; DROP; SWAP; CDR; CAR; PUSH; POP; PAIR; UNPAIR; UNPIAR];
+          optimize_aux ()
+        end
       end
-    end
-  in optimize_aux ()
+    in optimize_aux ()
+  end
 
 
 (** Example *)
@@ -95,4 +100,9 @@ let optimize sa sb =
 let example = function () ->
 let a = Var "a" and b = Var "b" and c = Var "c" in
 let start = Stack ([Pair (a, b); c], []) and target = Stack ([Pair (c,a); b], []) in
+optimize start target
+
+let invalid_example = function () ->
+let a = Var "a" and b = Var "b" in
+let start = Stack ([a], []) and target = Stack ([a; b], []) in
 optimize start target

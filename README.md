@@ -1,4 +1,11 @@
 # optimal_stack
+
+I don't think the heap implementation is mine, but I don't remember
+where it's from. Let me know if you find it so I can put the right license.
+
+
+
+
 Compiler for stack manipulation in Michelson
 
 A lot of operations in Michelson are stack manipulation operations that 
